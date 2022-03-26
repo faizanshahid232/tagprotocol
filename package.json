@@ -19,6 +19,7 @@
     "lint": "eslint \"src/**/*.js\"",
     "start": "serve -s build",
     "dev": "react-scripts start",
+    "heroku-postbuild": "npm run build",
     "test": "react-scripts test",
     "test:cov": "npm test -- --coverage --watchAll=false",
     "test:debug": "react-scripts --inspect-brk test --runInBand"
