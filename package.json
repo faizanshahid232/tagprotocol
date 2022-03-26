@@ -53,9 +53,11 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "2.5.1",
-    "react-scripts": "5.0.0",
     "sass": "^1.49.9",
     "web-vitals": "^2.1.4"
+  },
+  "Dependencies": {
+    "react-scripts": "5.0.0"
   },
   "engines": {
     "node": ">=10",
