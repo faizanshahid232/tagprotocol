@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
-//const Claims = React.lazy(() => import('./views/claims/Claims'))
+const Claims = React.lazy(() => import('./views/claims/Claims'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
 // Base
@@ -53,7 +53,7 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  //  { path: '/claims-and-dispatches', name: 'Claims & Dispatches', element: Claims },
+  { path: '/claims-and-dispatches', name: 'Claims & Dispatches', element: Claims },
   { path: '/theme/typography', name: 'Typography', element: Typography },
   { path: '/base', name: 'Base', element: Cards, exact: true },
   { path: '/base/accordion', name: 'Accordion', element: Accordion },
