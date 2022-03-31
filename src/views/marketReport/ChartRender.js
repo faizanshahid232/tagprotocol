@@ -13,7 +13,7 @@ const ChartRender = () => {
           filter={date}
           chartId={'623334fa-a723-490c-8806-784a49572d93'}
           height={'600px'}
-          width={'800px'}
+          width={'900px'}
         />
       </div>
     </div>
