@@ -16,6 +16,12 @@ const _nav = [
     to: '/claims-and-dispatches',
     icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
   },
+  {
+    component: CNavItem,
+    name: 'Tagcoin Market & Report',
+    to: '/market-report',
+    icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
+  },
 ]
 
 export default _nav
