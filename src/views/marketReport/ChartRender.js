@@ -5,7 +5,7 @@ const ChartRender = () => {
   return (
     <div className="App">
       <div className="form">
-        <label>Strat Date</label>
+        <label>Start Date: </label>
         <input type="date" id="data-form" value={date} onChange={(e) => setDate(e.target.value)} />
       </div>
       <div className="charts">
@@ -13,7 +13,7 @@ const ChartRender = () => {
           filter={date}
           chartId={'623334fa-a723-490c-8806-784a49572d93'}
           height={'600px'}
-          width={'900px'}
+          width={'100%'}
         />
       </div>
     </div>
