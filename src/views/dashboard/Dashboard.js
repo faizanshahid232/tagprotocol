@@ -1,5 +1,7 @@
-import React from 'react'
-
+import React, { useState } from 'react'
+import Web3 from 'web3/dist/web3.min.js'
+import contract from './contractABI.json'
+import NumberFormat from 'react-number-format'
 import {
   CCard,
   CCardBody,
@@ -34,6 +36,22 @@ const getBadge = (status) => {
   }
 }
 const Dashboard = () => {
+  const [contractTotalSupply, setcontractTotalSupply] = useState()
+  const [contractSymbol, setcontractSymbol] = useState()
+  const [contractDecimal, setcontractDecimal] = useState()
+  const contractAddress = '0x717fb7B6d0c3d7f1421Cc60260412558283A6ae5'
+  const rpcURL = 'https://bsc-dataseed1.binance.org:443'
+  const web3 = new Web3(rpcURL)
+  const contractMethod = new web3.eth.Contract(contract, contractAddress)
+  contractMethod.methods.totalSupply().call((err, result) => {
+    setcontractTotalSupply(web3.utils.fromWei(result, 'ether'))
+  })
+  contractMethod.methods.symbol().call((err, result) => {
+    setcontractSymbol(result)
+  })
+  contractMethod.methods.decimals().call((err, result) => {
+    setcontractDecimal(result)
+  })
   const treasuryData = [
     {
       txnHash: '0x134107...',
@@ -167,7 +185,15 @@ const Dashboard = () => {
                         </span>
                       </div>
                       <div className="progress-group-bars">
-                        <div className="small">$4,212,136.89</div>
+                        <div className="small">
+                          <NumberFormat
+                            value={contractTotalSupply}
+                            displayType={'text'}
+                            decimalScale={6}
+                            thousandSeparator={true}
+                          />{' '}
+                          {contractSymbol}
+                        </div>
                       </div>
                     </div>
                     <hr className="mt-0" />
@@ -204,7 +230,14 @@ const Dashboard = () => {
                         <span className="text-medium-emphasis small fw-semibold">Contract:</span>
                       </div>
                       <div className="progress-group-bars">
-                        <div className="small">0x717fb7B6d0c3d7f1421Cc60260412558283A6ae5</div>
+                        <div className="small">
+                          <a
+                            href="https://bscscan.com/address/0x717fb7B6d0c3d7f1421Cc60260412558283A6ae5"
+                            className="link-primary"
+                          >
+                            0x717fb7B6d0c3d7f1421Cc60260412558283A6ae5
+                          </a>
+                        </div>
                       </div>
                     </div>
                     <hr className="mt-0" />
@@ -213,7 +246,7 @@ const Dashboard = () => {
                         <span className="text-medium-emphasis small fw-semibold">Decimals:</span>
                       </div>
                       <div className="progress-group-bars">
-                        <div className="small">18</div>
+                        <div className="small">{contractDecimal}</div>
                       </div>
                     </div>
                     <hr className="mt-0" />
