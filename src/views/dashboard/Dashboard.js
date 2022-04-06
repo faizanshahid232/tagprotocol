@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 import Web3 from 'web3/dist/web3.min.js'
 import contract from './contractABI.json'
 import NumberFormat from 'react-number-format'
@@ -39,6 +40,10 @@ const Dashboard = () => {
   const [contractTotalSupply, setcontractTotalSupply] = useState()
   const [contractSymbol, setcontractSymbol] = useState()
   const [contractDecimal, setcontractDecimal] = useState()
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [closeUSDBNB, setcloseUSDBNB] = useState(null)
   const contractAddress = '0x717fb7B6d0c3d7f1421Cc60260412558283A6ae5'
   const rpcURL = 'https://bsc-dataseed1.binance.org:443'
   const web3 = new Web3(rpcURL)
@@ -52,6 +57,39 @@ const Dashboard = () => {
   contractMethod.methods.decimals().call((err, result) => {
     setcontractDecimal(result)
   })
+  useEffect(() => {
+    async function getData() {
+      try {
+        const response = await axios.get('https://tagdev.info/v1/summary/')
+        setData(response.data)
+        setError(null)
+      } catch (err) {
+        setError(err.message)
+        setData(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    getData()
+  }, [])
+  console.log(data)
+  useEffect(() => {
+    async function getUSDBNBData() {
+      try {
+        const res = await axios.get('https://tagdev.info/v1/summary/get24MarketStat')
+        setcloseUSDBNB(res.data)
+        console.log(res.data)
+      } catch (err) {
+        setError(err.message)
+        setcloseUSDBNB(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    getUSDBNBData()
+  }, [])
+  if (loading || !data || !closeUSDBNB) return 'Loading...'
+  if (error) return 'Error!'
   const treasuryData = [
     {
       txnHash: '0x134107...',
@@ -165,7 +203,22 @@ const Dashboard = () => {
                       <CCol sm={6}>
                         <div className="border-start-4 border-start-info py-1 px-3">
                           <div className="text-medium-emphasis small fw-semibold">PRICE</div>
-                          <div className="small">$0.10 @ 0.000243 BNB (-0.02%)</div>
+                          <div className="small">
+                            <NumberFormat
+                              value={closeUSDBNB[0].close_usd}
+                              displayType={'text'}
+                              prefix={'$'}
+                              decimalScale={2}
+                            />{' '}
+                            @{' '}
+                            <NumberFormat
+                              value={closeUSDBNB[0].close_bnb}
+                              displayType={'text'}
+                              prefix={'$'}
+                              decimalScale={6}
+                            />{' '}
+                            BNB
+                          </div>
                         </div>
                       </CCol>
                       <CCol sm={6}>
@@ -173,7 +226,15 @@ const Dashboard = () => {
                           <div className="text-medium-emphasis small fw-semibold">
                             FULLY DILUTED MARKET CAP
                           </div>
-                          <div className="small">$4,212,136.89</div>
+                          <div className="small">
+                            <NumberFormat
+                              value={closeUSDBNB[0].close_usd * contractTotalSupply}
+                              displayType={'text'}
+                              prefix={'$'}
+                              thousandSeparator={true}
+                              decimalScale={2}
+                            />
+                          </div>
                         </div>
                       </CCol>
                     </CRow>
@@ -202,16 +263,14 @@ const Dashboard = () => {
                         <span className="text-medium-emphasis small fw-semibold">Holders:</span>
                       </div>
                       <div className="progress-group-bars">
-                        <div className="small">8,746 addresses</div>
-                      </div>
-                    </div>
-                    <hr className="mt-0" />
-                    <div className="progress-group">
-                      <div className="progress-group-prepend">
-                        <span className="text-medium-emphasis small fw-semibold">Transfers:</span>
-                      </div>
-                      <div className="progress-group-bars">
-                        <div className="small">113,574</div>
+                        <div className="small">
+                          <NumberFormat
+                            value={data.holders}
+                            displayType={'text'}
+                            thousandSeparator={true}
+                          />{' '}
+                          addresses
+                        </div>
                       </div>
                     </div>
                   </CCardBody>
