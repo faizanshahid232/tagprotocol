@@ -1,439 +1,258 @@
-import React from 'react'
-import {
-  CButton,
-  CDropdown,
-  CDropdownDivider,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
-  CButtonGroup,
-  CButtonToolbar,
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CCol,
-  CFormCheck,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-} from '@coreui/react'
-import { DocsCallout, DocsExample } from 'src/components'
+import React, { useEffect, useState } from 'react'
+import { CCol, CRow, CAlert } from '@coreui/react'
+import NumberFormat from 'react-number-format'
+import contract from '../../ContractABI/contractABI.json'
+import contractHTagABI from '../../ContractABI/contractHTagABI.json'
+import Web3 from 'web3/dist/web3.min.js'
+import axios from 'axios'
 
 const ButtonGroups = () => {
+  const [contractTotalSupply, setcontractTotalSupply] = useState()
+  const [getHTagRegistered, setHTagRegistered] = useState(null)
+  const [getId, setId] = useState(null)
+  const [getTagMiner, setTagMiner] = useState(null)
+  const [getStakedItem, setStakedItem] = useState(null)
+  const [getMarketStat, setMarketStat] = useState(null)
+  const [getSummary, setSummary] = useState(null)
+  const baseURL = 'https://ledger-trans.tagdev.info/v1/summary/getLastIndexed/last'
+  const stakedItem = 'https://pl-transactions.herokuapp.com/v1/summary/getSummary'
+  const contractAddress = '0x717fb7B6d0c3d7f1421Cc60260412558283A6ae5'
+  const contractHTagAddress = '0x4db89cB01EB60F3b1D04300e5C408D23Ebbe615B'
+  const rpcURL = 'https://bsc-dataseed1.binance.org:443'
+  const web3 = new Web3(rpcURL)
+  const contractMethod = new web3.eth.Contract(contract, contractAddress)
+  contractMethod.methods.totalSupply().call((err, result) => {
+    setcontractTotalSupply(web3.utils.fromWei(result, 'ether'))
+  })
+  const contractHTagRegistered = new web3.eth.Contract(contractHTagABI, contractHTagAddress)
+  contractHTagRegistered.methods.currentCtr().call((err, result) => {
+    setHTagRegistered(web3.utils.fromWei(result, 'wei'))
+  })
+  useEffect(() => {
+    async function getTagMiner() {
+      try {
+        const response = await axios.get('https://tagcoin-api-mainnet.herokuapp.com/v1/summary')
+        setTagMiner(response.data)
+      } catch (err) {
+      } finally {
+      }
+    }
+    getTagMiner()
+    const interval = setInterval(() => {
+      getTagMiner()
+    }, 50000)
+    return () => clearInterval(interval)
+  }, [])
+  useEffect(() => {
+    async function getSummary() {
+      try {
+        const response = await axios.get('https://tagdev.info/v1/summary/')
+        setSummary(response.data)
+      } catch (err) {
+      } finally {
+      }
+    }
+    getSummary()
+    const interval = setInterval(() => {
+      getSummary()
+    }, 50000)
+    return () => clearInterval(interval)
+  }, [])
+  useEffect(() => {
+    async function marketStat() {
+      try {
+        const response = await axios.get('https://tagdev.info/v1/summary/get24MarketStat')
+        setMarketStat(response.data)
+      } catch (err) {
+      } finally {
+      }
+    }
+    marketStat()
+    const interval = setInterval(() => {
+      marketStat()
+    }, 50000)
+    return () => clearInterval(interval)
+  }, [])
+  useEffect(() => {
+    async function getID() {
+      try {
+        const response = await axios.get(baseURL)
+        setId(response.data)
+      } catch (err) {
+      } finally {
+      }
+    }
+    getID()
+    const interval = setInterval(() => {
+      getID()
+    }, 50000)
+    return () => clearInterval(interval)
+  }, [])
+  useEffect(() => {
+    async function getStakedCount() {
+      try {
+        const abc = getId['id']
+        const response = await axios.get(`${stakedItem}/${abc}`)
+        setStakedItem(response.data)
+      } catch (err) {
+      } finally {
+      }
+    }
+    getStakedCount()
+    const interval = setInterval(() => {
+      getStakedCount()
+    }, 50000)
+    return () => clearInterval(interval)
+  }, [getId])
+  if (!getId) return ' '
+  if (!getStakedItem) return ' '
+  if (!getMarketStat) return ' '
+  if (!getSummary) return ' '
+  if (!getTagMiner) return ' '
   return (
     <CRow>
-      <CCol xs={12}>
-        <DocsCallout name="Button Group" href="components/button-group" />
-      </CCol>
-      <CCol xs={12}>
-        <CCard className="mb-4">
-          <CCardHeader>
-            <strong>React Button Group</strong> <span>Basic example</span>
-          </CCardHeader>
-          <CCardBody>
-            <p>
-              Wrap a series of <code>&lt;CButton&gt;</code> components in{' '}
-              <code>&lt;CButtonGroup&gt;</code>.{' '}
-            </p>
-            <DocsExample href="components/button-group">
-              <CButtonGroup role="group" aria-label="Basic example">
-                <CButton color="primary">Left</CButton>
-                <CButton color="primary">Middle</CButton>
-                <CButton color="primary">Right</CButton>
-              </CButtonGroup>
-            </DocsExample>
-            <p>
-              These classes can also be added to groups of links, as an alternative to the{' '}
-              <code>&lt;CNav&gt;</code> components.
-            </p>
-            <DocsExample href="components/button-group">
-              <CButtonGroup>
-                <CButton href="#" color="primary" active>
-                  Active link
-                </CButton>
-                <CButton href="#" color="primary">
-                  Link
-                </CButton>
-                <CButton href="#" color="primary">
-                  Link
-                </CButton>
-              </CButtonGroup>
-            </DocsExample>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol xs={12}>
-        <CCard className="mb-4">
-          <CCardHeader>
-            <strong>React Button Group</strong> <span>Mixed styles</span>
-          </CCardHeader>
-          <CCardBody>
-            <DocsExample href="components/button-group#mixed-styles">
-              <CButtonGroup role="group" aria-label="Basic mixed styles example">
-                <CButton color="danger">Left</CButton>
-                <CButton color="warning">Middle</CButton>
-                <CButton color="success">Right</CButton>
-              </CButtonGroup>
-            </DocsExample>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol xs={12}>
-        <CCard className="mb-4">
-          <CCardHeader>
-            <strong>React Button Group</strong> <span>Outlined styles</span>
-          </CCardHeader>
-          <CCardBody>
-            <DocsExample href="components/button-group#outlined-styles">
-              <CButtonGroup role="group" aria-label="Basic outlined example">
-                <CButton color="primary" variant="outline">
-                  Left
-                </CButton>
-                <CButton color="primary" variant="outline">
-                  Middle
-                </CButton>
-                <CButton color="primary" variant="outline">
-                  Right
-                </CButton>
-              </CButtonGroup>
-            </DocsExample>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol xs={12}>
-        <CCard className="mb-4">
-          <CCardHeader>
-            <strong>React Button Group</strong> <span>Checkbox and radio button groups</span>
-          </CCardHeader>
-          <CCardBody>
-            <p>
-              Combine button-like checkbox and radio toggle buttons into a seamless looking button
-              group.
-            </p>
-            <DocsExample href="components/button-group#checkbox-and-radio-button-groups">
-              <CButtonGroup role="group" aria-label="Basic checkbox toggle button group">
-                <CFormCheck
-                  button={{ variant: 'outline' }}
-                  id="btncheck1"
-                  autoComplete="off"
-                  label="Checkbox 1"
-                />
-                <CFormCheck
-                  button={{ variant: 'outline' }}
-                  id="btncheck2"
-                  autoComplete="off"
-                  label="Checkbox 2"
-                />
-                <CFormCheck
-                  button={{ variant: 'outline' }}
-                  id="btncheck3"
-                  autoComplete="off"
-                  label="Checkbox 3"
-                />
-              </CButtonGroup>
-            </DocsExample>
-            <DocsExample href="components/button-group#checkbox-and-radio-button-groups">
-              <CButtonGroup role="group" aria-label="Basic checkbox toggle button group">
-                <CFormCheck
-                  type="radio"
-                  button={{ variant: 'outline' }}
-                  name="btnradio"
-                  id="btnradio1"
-                  autoComplete="off"
-                  label="Radio 1"
-                />
-                <CFormCheck
-                  type="radio"
-                  button={{ variant: 'outline' }}
-                  name="btnradio"
-                  id="btnradio2"
-                  autoComplete="off"
-                  label="Radio 2"
-                />
-                <CFormCheck
-                  type="radio"
-                  button={{ variant: 'outline' }}
-                  name="btnradio"
-                  id="btnradio3"
-                  autoComplete="off"
-                  label="Radio 3"
-                />
-              </CButtonGroup>
-            </DocsExample>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol xs={12}>
-        <CCard className="mb-4">
-          <CCardHeader>
-            <strong>React Button Group</strong> <span>Button toolbar</span>
-          </CCardHeader>
-          <CCardBody>
-            <p>
-              Join sets of button groups into button toolbars for more complicated components. Use
-              utility classes as needed to space out groups, buttons, and more.
-            </p>
-            <DocsExample href="components/button-group#button-toolbar">
-              <CButtonToolbar role="group" aria-label="Toolbar with button groups">
-                <CButtonGroup className="me-2" role="group" aria-label="First group">
-                  <CButton color="primary">1</CButton>
-                  <CButton color="primary">2</CButton>
-                  <CButton color="primary">3</CButton>
-                  <CButton color="primary">4</CButton>
-                </CButtonGroup>
-                <CButtonGroup className="me-2" role="group" aria-label="Second group">
-                  <CButton color="secondary">5</CButton>
-                  <CButton color="secondary">6</CButton>
-                  <CButton color="secondary">7</CButton>
-                </CButtonGroup>
-                <CButtonGroup className="me-2" role="group" aria-label="Third group">
-                  <CButton color="info">8</CButton>
-                </CButtonGroup>
-              </CButtonToolbar>
-            </DocsExample>
-            <p>
-              Feel free to combine input groups with button groups in your toolbars. Similar to the
-              example above, you’ll likely need some utilities through to space items correctly.
-            </p>
-            <DocsExample href="components/button-group#button-toolbar">
-              <CButtonToolbar className="mb-3" role="group" aria-label="Toolbar with button groups">
-                <CButtonGroup className="me-2" role="group" aria-label="First group">
-                  <CButton color="secondary" variant="outline">
-                    1
-                  </CButton>
-                  <CButton color="secondary" variant="outline">
-                    2
-                  </CButton>
-                  <CButton color="secondary" variant="outline">
-                    3
-                  </CButton>
-                  <CButton color="secondary" variant="outline">
-                    4
-                  </CButton>
-                </CButtonGroup>
-                <CInputGroup>
-                  <CInputGroupText>@</CInputGroupText>
-                  <CFormInput
-                    placeholder="Input group example"
-                    aria-label="Input group example"
-                    aria-describedby="btnGroupAddon"
+      <CCol xs={6}>
+        <CRow>
+          <CCol sm={12}>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">PRICE</div>
+                <div className="small">
+                  <NumberFormat
+                    value={getMarketStat[0]['close_usd']}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    decimalScale={4}
+                  />{' '}
+                  USD/TAGS
+                </div>
+              </div>
+            </CAlert>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">TAG HOLDERS</div>
+                <div className="small">
+                  <NumberFormat
+                    value={getSummary['holders']}
+                    displayType={'text'}
+                    thousandSeparator={true}
                   />
-                </CInputGroup>
-              </CButtonToolbar>
-              <CButtonToolbar
-                className="justify-content-between"
-                role="group"
-                aria-label="Toolbar with button groups"
-              >
-                <CButtonGroup className="me-2" role="group" aria-label="First group">
-                  <CButton color="secondary" variant="outline">
-                    1
-                  </CButton>
-                  <CButton color="secondary" variant="outline">
-                    2
-                  </CButton>
-                  <CButton color="secondary" variant="outline">
-                    3
-                  </CButton>
-                  <CButton color="secondary" variant="outline">
-                    4
-                  </CButton>
-                </CButtonGroup>
-                <CInputGroup>
-                  <CInputGroupText>@</CInputGroupText>
-                  <CFormInput
-                    placeholder="Input group example"
-                    aria-label="Input group example"
-                    aria-describedby="btnGroupAddon"
+                </div>
+              </div>
+            </CAlert>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">HIGH (24 HOURS)</div>
+                <div className="small">
+                  <NumberFormat
+                    value={getMarketStat[0]['high_usd']}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    decimalScale={4}
+                    prefix={'$'}
                   />
-                </CInputGroup>
-              </CButtonToolbar>
-            </DocsExample>
-          </CCardBody>
-        </CCard>
+                </div>
+              </div>
+            </CAlert>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">LOW (24 HOURS)</div>
+                <div className="small">
+                  <NumberFormat
+                    value={getMarketStat[0]['low_usd']}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    decimalScale={4}
+                    prefix={'$'}
+                  />
+                </div>
+              </div>
+            </CAlert>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">VOLUME (24 HOURS)</div>
+                <div className="small">
+                  <NumberFormat
+                    value={getMarketStat[0]['tagvol_tag']}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    decimalScale={0}
+                  />
+                </div>
+              </div>
+            </CAlert>
+          </CCol>
+        </CRow>
       </CCol>
-      <CCol xs={12}>
-        <CCard className="mb-4">
-          <CCardHeader>
-            <strong>React Button Group</strong> <span>Sizing</span>
-          </CCardHeader>
-          <CCardBody>
-            <p>
-              Alternatively, of implementing button sizing classes to each button in a group, set{' '}
-              <code>size</code> property to all <code>&lt;CButtonGroup&gt;</code>&#39;s, including
-              each one when nesting multiple groups.
-            </p>
-            <DocsExample href="components/button-group#sizing">
-              <CButtonGroup size="lg" role="group" aria-label="Large button group">
-                <CButton color="dark" variant="outline">
-                  Left
-                </CButton>
-                <CButton color="dark" variant="outline">
-                  Middle
-                </CButton>
-                <CButton color="dark" variant="outline">
-                  Right
-                </CButton>
-              </CButtonGroup>
-              <br />
-              <CButtonGroup role="group" aria-label="Default button group">
-                <CButton color="dark" variant="outline">
-                  Left
-                </CButton>
-                <CButton color="dark" variant="outline">
-                  Middle
-                </CButton>
-                <CButton color="dark" variant="outline">
-                  Right
-                </CButton>
-              </CButtonGroup>
-              <br />
-              <CButtonGroup size="sm" role="group" aria-label="Small button group">
-                <CButton color="dark" variant="outline">
-                  Left
-                </CButton>
-                <CButton color="dark" variant="outline">
-                  Middle
-                </CButton>
-                <CButton color="dark" variant="outline">
-                  Right
-                </CButton>
-              </CButtonGroup>
-            </DocsExample>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol xs={12}>
-        <CCard className="mb-4">
-          <CCardHeader>
-            <strong>React Button Group</strong> <span>Nesting</span>
-          </CCardHeader>
-          <CCardBody>
-            <p className="text-medium-emphasis small">
-              Put a <code>&lt;CButtonGroup&gt;</code> inside another{' '}
-              <code>&lt;CButtonGroup&gt;</code> when you need dropdown menus combined with a series
-              of buttons.
-            </p>
-            <DocsExample href="components/button-group#nesting">
-              <CButtonGroup role="group" aria-label="Button group with nested dropdown">
-                <CButton color="primary">1</CButton>
-                <CButton color="primary">2</CButton>
-                <CDropdown variant="btn-group">
-                  <CDropdownToggle color="primary">Dropdown</CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
-                    <CDropdownDivider />
-                    <CDropdownItem href="#">Separated link</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
-              </CButtonGroup>
-            </DocsExample>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol xs={12}>
-        <CCard className="mb-4">
-          <CCardHeader>
-            <strong>React Button Group</strong> <span>Vertical variation</span>
-          </CCardHeader>
-          <CCardBody>
-            <p className="text-medium-emphasis small">
-              Create a set of buttons that appear vertically stacked rather than horizontally.{' '}
-              <strong>Split button dropdowns are not supported here.</strong>
-            </p>
-            <DocsExample href="components/button-group/#vertical-variation">
-              <CButtonGroup vertical role="group" aria-label="Vertical button group">
-                <CButton color="dark">Button</CButton>
-                <CButton color="dark">Button</CButton>
-                <CButton color="dark">Button</CButton>
-                <CButton color="dark">Button</CButton>
-                <CButton color="dark">Button</CButton>
-                <CButton color="dark">Button</CButton>
-                <CButton color="dark">Button</CButton>
-              </CButtonGroup>
-            </DocsExample>
-            <DocsExample href="components/button-group/#vertical-variation">
-              <CButtonGroup vertical role="group" aria-label="Vertical button group">
-                <CButton color="primary">Button</CButton>
-                <CButton color="primary">Button</CButton>
-                <CDropdown variant="btn-group">
-                  <CDropdownToggle color="primary">Dropdown</CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
-                    <CDropdownDivider />
-                    <CDropdownItem href="#">Separated link</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
-                <CButton color="primary">Button</CButton>
-                <CButton color="primary">Button</CButton>
-                <CDropdown variant="btn-group">
-                  <CDropdownToggle color="primary">Dropdown</CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
-                    <CDropdownDivider />
-                    <CDropdownItem href="#">Separated link</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
-                <CDropdown variant="btn-group">
-                  <CDropdownToggle color="primary">Dropdown</CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
-                    <CDropdownDivider />
-                    <CDropdownItem href="#">Separated link</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
-                <CDropdown variant="btn-group">
-                  <CDropdownToggle color="primary">Dropdown</CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
-                    <CDropdownDivider />
-                    <CDropdownItem href="#">Separated link</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
-              </CButtonGroup>
-            </DocsExample>
-            <DocsExample href="components/button-group/#vertical-variation">
-              <CButtonGroup vertical role="group" aria-label="Vertical button group">
-                <CFormCheck
-                  type="radio"
-                  button={{ color: 'danger', variant: 'outline' }}
-                  name="vbtnradio"
-                  id="vbtnradio1"
-                  autoComplete="off"
-                  label="Radio 1"
-                  defaultChecked
-                />
-                <CFormCheck
-                  type="radio"
-                  button={{ color: 'danger', variant: 'outline' }}
-                  name="vbtnradio"
-                  id="vbtnradio2"
-                  autoComplete="off"
-                  label="Radio 2"
-                />
-                <CFormCheck
-                  type="radio"
-                  button={{ color: 'danger', variant: 'outline' }}
-                  name="vbtnradio"
-                  id="vbtnradio3"
-                  autoComplete="off"
-                  label="Radio 3"
-                />
-              </CButtonGroup>
-            </DocsExample>
-          </CCardBody>
-        </CCard>
+      <CCol xs={6}>
+        <CRow>
+          <CCol sm={12}>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">HASHTAGS REGISTERED</div>
+                <div className="small">
+                  <NumberFormat
+                    value={getHTagRegistered}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                  />
+                </div>
+              </div>
+            </CAlert>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">STAKED STAKED</div>
+                <div className="small">
+                  <NumberFormat
+                    value={getStakedItem['count']}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                  />
+                </div>
+              </div>
+            </CAlert>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">TAG MINERS</div>
+                <div className="small">
+                  <NumberFormat
+                    value={getTagMiner['wallets'] - 1}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                  />
+                </div>
+              </div>
+            </CAlert>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">TOTAL SUPPLY</div>
+                <div className="small">
+                  <NumberFormat
+                    value={contractTotalSupply}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    decimalScale={2}
+                  />{' '}
+                  TAGS
+                </div>
+              </div>
+            </CAlert>
+            <CAlert color="light">
+              <div className="d-flex justify-content-between">
+                <div className="text-medium-emphasis small fw-semibold">CIRCULATING SUPPLY</div>
+                <div className="small">
+                  <NumberFormat
+                    value={getSummary['supply']}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    decimalScale={2}
+                  />{' '}
+                  TAGS
+                </div>
+              </div>
+            </CAlert>
+          </CCol>
+        </CRow>
       </CCol>
     </CRow>
   )

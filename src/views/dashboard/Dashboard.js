@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import Web3 from 'web3/dist/web3.min.js'
-import contract from './contractABI.json'
+import contract from '../ContractABI/contractABI.json'
 import NumberFormat from 'react-number-format'
 import {
   CCard,
