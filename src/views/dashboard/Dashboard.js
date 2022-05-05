@@ -3,44 +3,20 @@ import React, { useEffect, useState } from 'react'
 import Web3 from 'web3/dist/web3.min.js'
 import contract from '../ContractABI/contractABI.json'
 import NumberFormat from 'react-number-format'
-import {
-  CCard,
-  CCardBody,
-  CCol,
-  CRow,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-  CCardHeader,
-  CBadge,
-  CTooltip,
-  CLink,
-} from '@coreui/react'
+import 'bootstrap/dist/js/bootstrap.bundle.js'
+import 'bootstrap/dist/css/bootstrap.css'
+import { CCard, CCardBody, CCol, CRow } from '@coreui/react'
+import DataTable from 'react-data-table-component'
 
-const getBadge = (status) => {
-  switch (status) {
-    case 'Success':
-      return 'success'
-    case 'Inactive':
-      return 'secondary'
-    case 'Pending':
-      return 'warning'
-    case 'Error':
-      return 'danger'
-    case 'Claim':
-      return 'secondary'
-    default:
-      return 'primary'
-  }
-}
 const Dashboard = () => {
+  const [value, setValue] = useState('')
   const [contractTotalSupply, setcontractTotalSupply] = useState()
   const [contractSymbol, setcontractSymbol] = useState()
   const [contractDecimal, setcontractDecimal] = useState()
   const [data, setData] = useState(null)
+  const [walletData, setWalletData] = useState(null)
+  const [tokenSummary, setTokenSummary] = useState(null)
+  const [getTaglist, setTaglist] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [closeUSDBNB, setcloseUSDBNB] = useState(null)
@@ -72,7 +48,21 @@ const Dashboard = () => {
     }
     getData()
   }, [])
-  console.log(data)
+  useEffect(() => {
+    async function getTagList() {
+      try {
+        const res = await axios.get('https://ledger.tagdev.info/v1/summary/getRanksSimple/0/10')
+        setTaglist(res.data)
+        console.log(res.data)
+      } catch (err) {
+        setError(err.message)
+        setTaglist(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    getTagList()
+  }, [])
   useEffect(() => {
     async function getUSDBNBData() {
       try {
@@ -88,106 +78,76 @@ const Dashboard = () => {
     }
     getUSDBNBData()
   }, [])
-  if (loading || !data || !closeUSDBNB) return 'Loading...'
+  if (loading || !data || !closeUSDBNB || !getTaglist) return 'Loading...'
   if (error) return 'Error!'
-  const treasuryData = [
+  console.log(getTaglist['data'])
+  const columns = [
     {
-      txnHash: '0x134107...',
-      method: 'Claim',
-      status: 'Success',
-      block: '1456876',
-      age: '2 mins ago',
-      from: '0x134107...',
-      inOut: 'IN',
-      to: '0x134107...',
-      value: '1.978687 BNB',
-      txnFee: '0.001233',
+      name: 'Id',
+      selector: (row) => row._id,
+      sortable: true,
     },
     {
-      txnHash: '0x134107...',
-      method: 'Claim',
-      status: 'Error',
-      block: '1456876',
-      age: '2 mins ago',
-      from: '0x134107...',
-      inOut: 'IN',
-      to: '0x134107...',
-      value: '1.978687 BNB',
-      txnFee: '0.001233',
+      name: 'Grade',
+      selector: (row) => row.grade,
+      sortable: true,
     },
     {
-      txnHash: '0x134107...',
-      method: 'Claim',
-      status: 'Success',
-      block: '1456876',
-      age: '2 mins ago',
-      from: '0x134107...',
-      inOut: 'IN',
-      to: '0x134107...',
-      value: '1.978687 BNB',
-      txnFee: '0.001233',
+      name: 'Last Index',
+      selector: (row) => row.last_index,
+      sortable: true,
     },
     {
-      txnHash: '0x134107...',
-      method: 'Claim',
-      status: 'Success',
-      block: '1456876',
-      age: '2 mins ago',
-      from: '0x134107...',
-      inOut: 'IN',
-      to: '0x134107...',
-      value: '1.978687 BNB',
-      txnFee: '0.001233',
+      name: 'Rank',
+      selector: (row) => row.rank,
+      sortable: true,
     },
     {
-      txnHash: '0x134107...',
-      method: 'Claim',
-      status: 'Error',
-      block: '1456876',
-      age: '2 mins ago',
-      from: '0x134107...',
-      inOut: 'IN',
-      to: '0x134107...',
-      value: '1.978687 BNB',
-      txnFee: '0.001233',
-    },
-    {
-      txnHash: '0x134107...',
-      method: 'Claim',
-      status: 'Success',
-      block: '1456876',
-      age: '2 mins ago',
-      from: '0x134107...',
-      inOut: 'IN',
-      to: '0x134107...',
-      value: '1.978687 BNB',
-      txnFee: '0.001233',
-    },
-    {
-      txnHash: '0x134107...',
-      method: 'Claim',
-      status: 'Success',
-      block: '1456876',
-      age: '2 mins ago',
-      from: '0x134107...',
-      inOut: 'IN',
-      to: '0x134107...',
-      value: '1.978687 BNB',
-      txnFee: '0.001233',
-    },
-    {
-      txnHash: '0x134107...',
-      method: 'Claim',
-      status: 'Error',
-      block: '1456876',
-      age: '2 mins ago',
-      from: '0x134107...',
-      inOut: 'IN',
-      to: '0x134107...',
-      value: '1.978687 BNB',
-      txnFee: '0.001233',
+      name: 'String',
+      selector: (row) => row.string,
+      sortable: true,
     },
   ]
+  const walletAddress = (e) => {
+    try {
+      if (value) {
+        axios.get('https://ledger.tagdev.info/v1/summary/getWallet/' + value).then((res) => {
+          setWalletData(res.data)
+        })
+        axios
+          .get('https://tagcoin-api-mainnet.herokuapp.com/v1/summary/mytokens/' + value + '/1')
+          .then((res2) => {
+            setTokenSummary(res2.data)
+          })
+      } else {
+        axios
+          .get(
+            'https://ledger.tagdev.info/v1/summary/getWallet/0xD534B6031eD576868b5e93259d95eD07695110E6',
+          )
+          .then((res) => {
+            setWalletData(res.data)
+          })
+        axios
+          .get(
+            'https://tagcoin-api-mainnet.herokuapp.com/v1/summary/mytokens/0xD534B6031eD576868b5e93259d95eD07695110E6/1',
+          )
+          .then((res2) => {
+            setTokenSummary(res2.data)
+          })
+      }
+    } catch (err) {
+      setError(err.message)
+      setWalletData(null)
+      setTokenSummary(null)
+    } finally {
+      setLoading(false)
+    }
+
+    if (!walletData) return 'empty'
+    if (!tokenSummary) return 'empty'
+    console.log(walletData[0]['mined'])
+    console.log(tokenSummary['data'][0]['hashtag'])
+  }
   return (
     <>
       <CRow>
@@ -331,141 +291,46 @@ const Dashboard = () => {
         </CCol>
       </CRow>
       <CRow>
-        <CCol sm={6}>
-          <CCard className="mb-4">
-            <CCardHeader>Tagcoin</CCardHeader>
-            <CCardBody>
-              <CTable align="middle" className="mb-0 border" hover responsive>
-                <CTableHead color="light">
-                  <CTableRow>
-                    <CTableHeaderCell>Txn Hash</CTableHeaderCell>
-                    <CTableHeaderCell>Method</CTableHeaderCell>
-                    <CTableHeaderCell>Status</CTableHeaderCell>
-                    <CTableHeaderCell>Block</CTableHeaderCell>
-                    <CTableHeaderCell>Age</CTableHeaderCell>
-                    <CTableHeaderCell>From</CTableHeaderCell>
-                    <CTableHeaderCell>To</CTableHeaderCell>
-                    <CTableHeaderCell>Value</CTableHeaderCell>
-                    <CTableHeaderCell>txnFee</CTableHeaderCell>
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  {treasuryData.map((item, index) => (
-                    <CTableRow v-for="item in tableItems" key={index}>
-                      <CTableDataCell>
-                        <div>
-                          <a href="#" className="link-primary">
-                            {item.txnHash}
-                          </a>
-                        </div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CBadge color={getBadge(item.method)}>{item.method}</CBadge>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CBadge color={getBadge(item.status)}>{item.status}</CBadge>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.block}</div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.age}</div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>
-                          <a href="#" className="link-primary">
-                            {item.from}
-                          </a>
-                        </div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CTooltip
-                          content="0x1341079976c2358637b488614cbde4ca5942a8b229b64b65f81366ceff47b3f5"
-                          placement="top"
-                        >
-                          <CLink>{item.to}</CLink>
-                        </CTooltip>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.value}</div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.txnFee}</div>
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
-            </CCardBody>
-          </CCard>
+        <CCol sm={12}>
+          <div className="App">
+            <div className="card">
+              <DataTable
+                title=""
+                columns={columns}
+                data={getTaglist['data']}
+                defaultSortFieldID={1}
+              />
+            </div>
+          </div>
         </CCol>
-        <CCol sm={6}>
-          <CCard className="mb-4">
-            <CCardHeader>Tagcoin</CCardHeader>
-            <CCardBody>
-              <CTable align="middle" className="mb-0 border" hover responsive>
-                <CTableHead color="light">
-                  <CTableRow>
-                    <CTableHeaderCell>Txn Hash</CTableHeaderCell>
-                    <CTableHeaderCell>Method</CTableHeaderCell>
-                    <CTableHeaderCell>Status</CTableHeaderCell>
-                    <CTableHeaderCell>Block</CTableHeaderCell>
-                    <CTableHeaderCell>Age</CTableHeaderCell>
-                    <CTableHeaderCell>From</CTableHeaderCell>
-                    <CTableHeaderCell>To</CTableHeaderCell>
-                    <CTableHeaderCell>Value</CTableHeaderCell>
-                    <CTableHeaderCell>txnFee</CTableHeaderCell>
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  {treasuryData.map((item, index) => (
-                    <CTableRow v-for="item in tableItems" key={index}>
-                      <CTableDataCell>
-                        <div>
-                          <a href="#" className="link-primary">
-                            {item.txnHash}
-                          </a>
-                        </div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CBadge color={getBadge(item.method)}>{item.method}</CBadge>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CBadge color={getBadge(item.status)}>{item.status}</CBadge>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.block}</div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.age}</div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>
-                          <a href="#" className="link-primary">
-                            {item.from}
-                          </a>
-                        </div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CTooltip
-                          content="0x1341079976c2358637b488614cbde4ca5942a8b229b64b65f81366ceff47b3f5"
-                          placement="top"
-                        >
-                          <CLink>{item.to}</CLink>
-                        </CTooltip>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.value}</div>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.txnFee}</div>
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
-            </CCardBody>
-          </CCard>
+        <br></br>
+        <CCol sm={12}>
+          <div className="App">
+            <div className="form">
+              <label>Wallet Address </label>
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => {
+                  setValue(e.target.value)
+                }}
+              />
+              <button onClick={walletAddress}>Submit</button>
+            </div>
+          </div>
+        </CCol>
+        <CCol sm={12}>
+          {!walletData ? (
+            'Not Found'
+          ) : (
+            <p>
+              Id: {+' ' + walletData[0]['_id']} <br></br> Mined: {walletData[0]['mined']} <br></br>
+              Minted: {+' ' + walletData[0]['minted']} <br></br> Staked:{' '}
+              {+' ' + walletData[0]['staked']} <br></br> Unminted:{' '}
+              {+' ' + walletData[0]['unminted']} <br></br> updated:{' '}
+              {+' ' + walletData[0]['updated']} <br></br>
+            </p>
+          )}
         </CCol>
       </CRow>
     </>
