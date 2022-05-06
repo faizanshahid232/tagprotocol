@@ -109,8 +109,8 @@ const Dashboard = () => {
     },
   ]
   const walletAddress = (e) => {
-    try {
-      if (value) {
+    if (value.length == 42) {
+      try {
         axios.get('https://ledger.tagdev.info/v1/summary/getWallet/' + value).then((res) => {
           setWalletData(res.data)
         })
@@ -119,32 +119,15 @@ const Dashboard = () => {
           .then((res2) => {
             setTokenSummary(res2.data)
           })
-      } else {
-        axios
-          .get(
-            'https://ledger.tagdev.info/v1/summary/getWallet/0xD534B6031eD576868b5e93259d95eD07695110E6',
-          )
-          .then((res) => {
-            setWalletData(res.data)
-          })
-        axios
-          .get(
-            'https://tagcoin-api-mainnet.herokuapp.com/v1/summary/mytokens/0xD534B6031eD576868b5e93259d95eD07695110E6/1',
-          )
-          .then((res2) => {
-            setTokenSummary(res2.data)
-          })
+      } catch (err) {
+        setError(err.message)
+        setWalletData(null)
+        setTokenSummary(null)
       }
-    } catch (err) {
-      setError(err.message)
-      setWalletData(null)
-      setTokenSummary(null)
-    } finally {
-      setLoading(false)
     }
 
-    if (!walletData) return 'empty'
-    if (!tokenSummary) return 'empty'
+    if (!walletData) return ''
+    if (!tokenSummary) return ''
     console.log(walletData[0]['mined'])
     console.log(tokenSummary)
   }
