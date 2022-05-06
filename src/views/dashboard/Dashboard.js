@@ -146,7 +146,7 @@ const Dashboard = () => {
     if (!walletData) return 'empty'
     if (!tokenSummary) return 'empty'
     console.log(walletData[0]['mined'])
-    console.log(tokenSummary['data'][0]['hashtag'])
+    console.log(tokenSummary)
   }
   return (
     <>
@@ -329,6 +329,21 @@ const Dashboard = () => {
               {+' ' + walletData[0]['staked']} <br></br> Unminted:{' '}
               {+' ' + walletData[0]['unminted']} <br></br> updated:{' '}
               {+' ' + walletData[0]['updated']} <br></br>
+            </p>
+          )}
+          {!tokenSummary ? (
+            'Not Found'
+          ) : (
+            <p>
+              Token Id: {tokenSummary['data'][0]['_id']}
+              <br></br>
+              Hashtag: {tokenSummary['data'][0]['hashtag']}
+              <br></br>
+              Owner: {tokenSummary['data'][0]['owner']}
+              <br></br>
+              TimeStamp: {tokenSummary['data'][0]['timestamp']}
+              <br></br>
+              Transaction Hash: {tokenSummary['data'][0]['transactionHash']}
             </p>
           )}
         </CCol>
