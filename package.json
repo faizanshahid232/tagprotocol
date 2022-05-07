@@ -17,7 +17,7 @@
     "changelog": "auto-changelog --starting-version 4.1.0 --commit-limit false --hide-credit",
     "eject": "react-scripts eject",
     "lint": "eslint \"src/**/*.js\"",
-    "start": "node index.js",
+    "start": "serve -s build",
     "dev": "react-scripts start",
     "heroku-postbuild": "npm run build",
     "test": "react-scripts test",
@@ -65,11 +65,10 @@
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "2.5.1",
     "sass": "^1.49.9",
-    "web-vitals": "^2.1.4",
-    "react-scripts": "5.0.0"
+    "web-vitals": "^2.1.4"
   },
   "engines": {
-    "node": ">=12.9.1",
-    "npm": ">=6.10.2"
+    "node": ">=10",
+    "npm": ">=6"
   }
 }
